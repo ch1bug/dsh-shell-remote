@@ -37,6 +37,11 @@ export class RemoteShellExecutor {
 
   constructor(host: string, descriptor?: RemoteBackendDescriptor) {
     this.descriptor = descriptor ?? sshDescriptor(host)
+    // Loud-failure posture: a host that disagrees with the supplied
+    // descriptor is a caller bug, never silently ignored.
+    if (this.descriptor.host !== host) {
+      throw new Error(`dsh-shell-remote: host '${host}' does not match the supplied descriptor's host '${this.descriptor.host}'`)
+    }
   }
 
   /**

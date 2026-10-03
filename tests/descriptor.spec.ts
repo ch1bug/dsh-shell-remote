@@ -35,11 +35,11 @@ describe('assertServiceableDescriptor', () => {
 describe('expandOneShotArgv', () => {
   it('produces `ssh <host> -- bash -c <cmd>` and substitutes the payload', () => {
     const argv = expandOneShotArgv(sshDescriptor('buildhost'), 'echo hi')
-    expect(argv).toEqual(['ssh', '--', 'bash', '-c', 'echo hi'])
+    expect(argv).toEqual(['ssh', 'buildhost', '--', 'bash', '-c', 'echo hi'])
   })
 
   it('substitutes every token occurrence', () => {
     const d = { ...sshDescriptor('h'), argv: { oneShot: ['--', 'bash', '-c', `cd ${COMMAND_TOKEN} && ${COMMAND_TOKEN}`] } }
-    expect(expandOneShotArgv(d, 'pwd')).toEqual(['ssh', '--', 'bash', '-c', 'cd pwd && pwd'])
+    expect(expandOneShotArgv(d, 'pwd')).toEqual(['ssh', 'h', '--', 'bash', '-c', 'cd pwd && pwd'])
   })
 })

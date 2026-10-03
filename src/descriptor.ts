@@ -20,10 +20,11 @@ export const COMMAND_TOKEN = '{command}'
  * Declarative remote backend description (the descriptor seam, R1 skeleton).
  * `executable` carries the ssh launcher candidates (default: bare `ssh`,
  * resolved through PATH — the same bare-name contract as the local `plain`
- * backend); `argv.oneShot` is the template the executor expands, and the
- * transport contract `ssh <host> -- bash -c <cmd>` is expressed as
- * `['<host>', '--', 'bash', '-c', '{command}']` — the `--` guards against
- * option injection from a host-shaped string.
+ * backend); `argv.oneShot` is the command template, and the transport
+ * contract `ssh <host> -- bash -c <cmd>` is realized as launcher + `host` +
+ * `['--', 'bash', '-c', '{command}']` — the host is spliced by
+ * {@link expandOneShotArgv}, and the `--` guards against option injection
+ * from a host-shaped string.
  */
 export interface RemoteBackendDescriptor {
   /** Descriptor id: `'ssh'` (the only transport in the staged plan, ADR-0004 decision 3; an ssh library stays behind revisit). */
@@ -67,9 +68,17 @@ export function assertServiceableDescriptor(backend: RemoteBackendDescriptor): v
 }
 
 /**
- * Expand the one-shot argv template into the concrete ssh argv, substituting
- * the command payload into the {@link COMMAND_TOKEN} entry.
+ * Expand the one-shot transport into the concrete ssh argv:
+ * `<launcher...> <host> <template...>` — the descriptor's `host` is the
+ * destination and is spliced in here (the template itself carries no host
+ * slot; the ADR-0004 contract `ssh <host> -- bash -c <cmd>` is launcher +
+ * host + template). The command payload is substituted into every
+ * {@link COMMAND_TOKEN} occurrence.
  */
 export function expandOneShotArgv(backend: RemoteBackendDescriptor, command: string): readonly string[] {
-  return [...backend.executable, ...backend.argv.oneShot.map(arg => arg.replaceAll(COMMAND_TOKEN, command))]
+  return [
+    ...backend.executable,
+    backend.host,
+    ...backend.argv.oneShot.map(arg => arg.replaceAll(COMMAND_TOKEN, command)),
+  ]
 }

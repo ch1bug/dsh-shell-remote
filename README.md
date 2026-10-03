@@ -13,7 +13,9 @@ forked from the dsh-shell-host type vocabulary. Design: [ADR-0004](https://githu
 ## Contract (D8, ADR-0004 decision 4)
 
 - `ShellResult` is field-identical to `@deepseek-ai/dsh-bash-local`'s
-  `ShellRunResult`.
+  `ShellRunResult`, with one recorded deviation: `sandbox` is typed `never`
+  (reserved, never populated — remote execution is never confined; the repo
+  carries no dsh-sandbox dependency). The R2 conformance test locks this.
 - All path semantics are REMOTE paths; the executor never maps paths.
 - Spill-class host capabilities loudly reject (R2); their type surface is
   reserved only.

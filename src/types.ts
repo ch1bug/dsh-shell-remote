@@ -48,7 +48,7 @@ export interface ShellResult {
   stdout: CollectedOutput
   /** Collected stderr (remote bytes, UTF-8 decoded; ssh transport notes ride here). */
   stderr: CollectedOutput
-  /** Sandbox execution facts, absent for an unsandboxed executor. The remote executor never confines, so this stays absent while the field remains for shape identity (D8). */
+  /** Sandbox execution facts, absent for an unsandboxed executor. The remote executor never confines, so this stays absent while the field remains for shape identity (D8). DELIBERATE D8 DEVIATION: typed `never` instead of the seam's `ShellSandboxInfo` — the repo stands alone (no dsh-sandbox dependency in R1) and remote sandbox facts cannot exist; the R2 conformance test locks this field as reserved-never-populated. */
   sandbox?: never
 }
 
