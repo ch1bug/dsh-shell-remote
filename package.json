@@ -1,6 +1,6 @@
 {
   "name": "dsh-shell-remote",
-  "version": "0.2.0-rc.2-r1",
+  "version": "0.2.1-alpha.1-r1",
   "private": true,
   "description": "dsh-shell-remote: one-shot remote shell execution over system OpenSSH (`ssh <host> -- bash -c <cmd>`), forked from the dsh-shell-host type vocabulary (ADR-0001 descriptor words, ADR-0004 decisions 1-5). ShellResult stays field-identical to @deepseek-ai/dsh-bash-local (D8); all path semantics are REMOTE paths; spill-class host capabilities loudly reject.",
   "type": "module",

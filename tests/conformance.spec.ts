@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { RemoteShellExecutor } from '../src/executor.ts'
 import { sshDescriptor } from '../src/descriptor.ts'
@@ -17,6 +18,16 @@ import { fakeSshDescriptor } from './fake-ssh-descriptor.ts'
 const SEAM_TYPES = process.env['DSH_SHELL_HOST_TYPES'] ?? 'C:/Work/code/dsh-shell-host/node_modules/@deepseek-ai/dsh-shell/lib/types/types.d.ts'
 const SEAM_SUBPROCESS_TYPES = process.env['DSH_SHELL_HOST_SUBPROCESS_TYPES'] ?? 'C:/Work/code/dsh-shell-host/node_modules/@deepseek-ai/dsh-subprocess/lib/types/types.d.ts'
 
+/**
+ * The upstream anchor this repo is pinned to, DERIVED from package.json's own
+ * `dsh-v<official>-r<N>` version (ADR-0005: anchor bump resets `-r`; single
+ * source of truth — an anchor bump edits package.json only, and this canary
+ * follows). Asserts the seam dist the D8 diff reads actually IS this version,
+ * so a stale dsh-shell-host checkout can never silently satisfy the diff
+ * against the wrong anchor.
+ */
+const ANCHORED_SEAM_VERSION = readFileSync(new URL('../package.json', import.meta.url), 'utf8').match(/"version": "([^"]+)-r\d+"/)?.[1]
+
 /** Extract the declared property names of `interface <name> { ... }` from the seam .d.ts. */
 function seamInterfaceFields(source: string, name: string): readonly string[] {
   const match = source.match(new RegExp(`export interface ${name} \\{([\\s\\S]*?)\\n\\}`))
@@ -33,6 +44,13 @@ async function producedResult(): Promise<Record<string, unknown>> {
 }
 
 describe('D8 contract conformance (runtime field-by-field diff)', () => {
+  it('the seam dist actually resolves to the anchored version (canary against stale checkouts)', () => {
+    for (const typesPath of [SEAM_TYPES, SEAM_SUBPROCESS_TYPES]) {
+      const pkg = JSON.parse(readFileSync(join(dirname(typesPath), '..', '..', 'package.json'), 'utf8')) as { version?: string }
+      expect(pkg['version'], `seam dist at ${typesPath} is not the anchored version`).toBe(ANCHORED_SEAM_VERSION)
+    }
+  })
+
   const seam = readFileSync(SEAM_TYPES, 'utf8')
 
   it('ShellResult carries exactly the seam ShellRunResult fields — sandbox is the single recorded deviation', async () => {
