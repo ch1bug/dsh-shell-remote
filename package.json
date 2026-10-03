@@ -1,0 +1,28 @@
+{
+  "name": "dsh-shell-remote",
+  "version": "0.1.0",
+  "private": true,
+  "description": "dsh-shell-remote: one-shot remote shell execution over system OpenSSH (`ssh <host> -- bash -c <cmd>`), forked from the dsh-shell-host type vocabulary (ADR-0001 descriptor words, ADR-0004 decisions 1-5). ShellResult stays field-identical to @deepseek-ai/dsh-bash-local (D8); all path semantics are REMOTE paths; spill-class host capabilities loudly reject.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": [
+    "dsh",
+    "ssh",
+    "bash",
+    "remote"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.8"
+  }
+}
